@@ -8,5 +8,5 @@ import com.e2open.entity.Part;
 public interface OrderHandling {
 
     String placeOrder(Part part);
-    Boolean available(Part part, int count);
+    Boolean available(Part part, Long count);
 }

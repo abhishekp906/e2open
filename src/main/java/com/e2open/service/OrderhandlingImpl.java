@@ -1,5 +1,6 @@
 package com.e2open.service;
 
+import com.e2open.entity.ChildPart;
 import com.e2open.entity.Part;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -16,14 +17,43 @@ public class OrderhandlingImpl implements OrderHandling {
     MongoTemplate mongoTemplate;
     @Override
     public String placeOrder(Part part) {
-        /**
-         * TODO :Graph formation and checking logs with all dependent parts and alternate parts recursively
-         */
-        return part.getId();
+        String partId = part.getSku();
+        Long maxTime=0L ;
+        Long minTime = 0L;
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(partId));
+        List<Part> partList= mongoTemplate.find(query, Part.class);
+        if (partList != null && partList.size()>0) {
+            if (partList.get(0).getQuantity()>0) {
+                //place order successful
+            }
+        }
+        else{
+            Part p = partList.get(0);
+            List<ChildPart> childParts = p.getChildParts();
+            Boolean isAvailable = Boolean.FALSE;
+            for (ChildPart pat: childParts){
+                Part childpart = getpartById(pat.getPartId());
+                isAvailable = available(childpart, p.getQuantity());
+                Long max = getMaximumDelayTime(partList.get(0));
+                Long min = getMinimumDelayTime(partList.get(0));
+
+
+                break;
+            }
+            if(isAvailable){
+
+            }
+
+        }
+
+
+
+        return null;
+
     }
 
-    @Override
-    public Boolean available(Part part, int count) {
+    public Boolean available(Part part, Long count) {
         if (part == null)
             return Boolean.FALSE;
 
@@ -46,5 +76,38 @@ public class OrderhandlingImpl implements OrderHandling {
 
     }
 
+    public long getMaximumDelayTime(Part part){
+        Long max = Long.MAX_VALUE;
 
+        List<ChildPart> childParts = part.getChildParts();
+        for (ChildPart childPart: childParts){
+            Part pat = getpartById(childPart.getPartId());
+            Long temp = getMaximumDelayTime(pat);
+            if (max < temp)
+                max = temp;
+        }
+
+        return max;
+    }
+
+    public long getMinimumDelayTime(Part part){
+        Long min = Long.MIN_VALUE;
+
+        List<ChildPart> childParts = part.getChildParts();
+        for (ChildPart childPart: childParts){
+            Part pat = getpartById(childPart.getPartId());
+            Long temp = getMaximumDelayTime(pat);
+            if (min > temp)
+                min = temp;
+        }
+        return min;
+    }
+
+
+    public Part getpartById(String partId){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(partId));
+        List<Part> partList= mongoTemplate.find(query, Part.class);
+        return partList != null && partList.size()>0 ? partList.get(0): null;
+    }
 }
