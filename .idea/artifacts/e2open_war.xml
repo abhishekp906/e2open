@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="e2open:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="trawells.war">
+      <element id="artifact" artifact-name="e2open:war exploded" />
+    </root>
+  </artifact>
+</component>
