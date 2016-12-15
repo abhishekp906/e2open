@@ -1,5 +1,6 @@
 package com.e2open.entity;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,6 +13,7 @@ public class Part extends BaseEntity {
     private Long quantity;
     private Double mrp;
     private Double sellingPrice;
+    private Date nextLookUpTime;
 
     private Boolean isTransportable;
     private Boolean isPurchaseble;
@@ -109,5 +111,13 @@ public class Part extends BaseEntity {
 
     public void setMaxTimeToMakeAvailable(Long maxTimeToMakeAvailable) {
         this.maxTimeToMakeAvailable = maxTimeToMakeAvailable;
+    }
+
+    public Date getNextLookUpTime() {
+        return nextLookUpTime;
+    }
+
+    public void setNextLookUpTime(Date nextLookUpTime) {
+        this.nextLookUpTime = nextLookUpTime;
     }
 }

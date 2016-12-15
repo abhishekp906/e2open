@@ -282,7 +282,7 @@ public class OrderTransaction extends BaseEntity {
         return skuId;
     }
 
-    public void setSkuId(List<Long> skuId) {
+    public void setSkuId(String skuId) {
         this.skuId = skuId;
     }
 
@@ -290,7 +290,7 @@ public class OrderTransaction extends BaseEntity {
         return productId;
     }
 
-    public void setProductId(List<Long> productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 

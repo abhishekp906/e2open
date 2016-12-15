@@ -7,6 +7,6 @@ import com.e2open.entity.Part;
  */
 public interface OrderHandling {
 
-    String placeOrder(Part part);
+    String placeOrder(Part part, String priority, String orderId);
     Boolean available(Part part, Long count);
 }
