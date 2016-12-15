@@ -4,6 +4,7 @@ import com.e2open.common.Constants;
 import com.e2open.entity.ChildPart;
 import com.e2open.entity.OrderTransaction;
 import com.e2open.entity.Part;
+import com.e2open.entity.QueueObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -11,6 +12,8 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.Date;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
  * Created by abhishek on 12/14/16.
@@ -18,6 +21,8 @@ import java.util.List;
 public class OrderhandlingImpl implements OrderHandling {
     @Autowired
     MongoTemplate mongoTemplate;
+
+    public static Queue minQueue;
     @Override
     public String placeOrder(Part part, String priority, String orderId) {
         String partId = part.getSku();
@@ -53,11 +58,14 @@ public class OrderhandlingImpl implements OrderHandling {
             if(isAvailable){
                 /**
                  * order successfully fulfilled order
+                 * trigger the delivery flow &
+                 * payment capture flow
                  */
             } else{
                 if (Constants.OrderPriority.P1.getValue().equalsIgnoreCase(priority)){
                     /**
                      * reset next lookup , time-based min heap
+                     * put the updated status into the cache to avoid next latency to read from table
                      */
                  part.setNextLookUpTime(new Date(part.getMaxTimeToMakeAvailable()+ minTime));
                  mongoTemplate.save(part);
@@ -157,7 +165,28 @@ public class OrderhandlingImpl implements OrderHandling {
             mongoTemplate.save(transaction);
             id = transaction.getId();
         }
-
+        updateMinQueue(orderTransactionList.get(0).getId());
         return id;
+    }
+
+    public Queue updateMinQueue(String transationId){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(transationId));
+        String id = null;
+        List<OrderTransaction> orderTransactionList= mongoTemplate.find(query, OrderTransaction.class);
+        if (orderTransactionList != null && orderTransactionList.size()>0){
+            if (minQueue == null)
+                minQueue = new PriorityQueue();
+            QueueObject object = new QueueObject();
+            object.setOrderid(orderTransactionList.get(0).getId());
+            object.setTimeToWait(orderTransactionList.get(0).getCreateDate().getTime());  // modifying time although not good to change createDate
+           if (minQueue.contains(object)){
+                // heapify  in memory
+           }else{
+             minQueue.add(object);
+               // heapify  in memory
+           }
+        }
+        return minQueue;
     }
 }
