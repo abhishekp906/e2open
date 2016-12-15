@@ -1,6 +1,7 @@
 package com.e2open.service;
 
 import com.e2open.common.Constants;
+import com.e2open.common.cache.RedisServiceManager;
 import com.e2open.entity.ChildPart;
 import com.e2open.entity.OrderTransaction;
 import com.e2open.entity.Part;
@@ -21,6 +22,8 @@ import java.util.Queue;
 public class OrderhandlingImpl implements OrderHandling {
     @Autowired
     MongoTemplate mongoTemplate;
+
+    RedisServiceManager redisServiceManager;
 
     public static Queue minQueue;
     @Override
@@ -139,6 +142,10 @@ public class OrderhandlingImpl implements OrderHandling {
 
 
     public Part getpartById(String partId){
+        if (redisServiceManager.get(partId) != null){
+             redisServiceManager.get(partId);
+            // need to make object serialize
+        }
         Query query = new Query();
         query.addCriteria(Criteria.where("id").is(partId));
         List<Part> partList= mongoTemplate.find(query, Part.class);
@@ -166,6 +173,7 @@ public class OrderhandlingImpl implements OrderHandling {
             id = transaction.getId();
         }
         updateMinQueue(orderTransactionList.get(0).getId());
+
         return id;
     }
 

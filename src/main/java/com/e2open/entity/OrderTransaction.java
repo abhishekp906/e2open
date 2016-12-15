@@ -70,9 +70,9 @@ public class OrderTransaction extends BaseEntity {
 
     private List<Long> storeId;
       
-    private List<Long> skuId;
+    private String skuId;
       
-    private List<Long> productId;
+    private String productId;
 
       
     private String osType;
@@ -278,7 +278,7 @@ public class OrderTransaction extends BaseEntity {
         this.storeId = storeId;
     }
 
-    public List<Long> getSkuId() {
+    public String getSkuId() {
         return skuId;
     }
 
@@ -286,7 +286,7 @@ public class OrderTransaction extends BaseEntity {
         this.skuId = skuId;
     }
 
-    public List<Long> getProductId() {
+    public String getProductId() {
         return productId;
     }
 
